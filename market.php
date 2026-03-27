@@ -1,29 +1,37 @@
 <?php
 require 'db.php';
 
+$stmt = $pdo->query("SELECT * FROM products");
+
 if(isset($_POST['buy'])){
     $id = $_POST['buy'];    
-    $request = $conn->query("SELECT * FROM products WHERE id = $id");
-    $item = $request->fetch_assoc();
+    $request = $pdo->query("SELECT * FROM products WHERE id = $id");
+    $item = $request->fetch(PDO::FETCH_ASSOC);
     $name = $item['name'];
     $description = $item['description'];
     $price = $item['price'];
     $image = $item['image'];
-
     
-    $sql = "INSERT INTO cart (id, name, description, price, image) VALUES ('$id', '$name', '$description', '$price', '$image')";
+    $pdo_request = "INSERT INTO cart (id, name, description, price, image) VALUES ('$id', '$name', '$description', '$price', '$image')";
 
-    if($conn->query($sql) === TRUE) {
+    if($pdo->query($pdo_request) === TRUE) {
         echo "<script>alert('Товар добавлен в корзину!')</script>";
     } else {
-        echo "Ошибка. Товар уже добавлне в корзину";
+        
     }
+}
+
+if(isset($_GET['search'])){
+    $search = $_GET['search'];
+
+    $sql = "SELECT * FROM products WHERE name LIKE ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(["%$search%"]);
+
 }
 
 
 
-
-$result = $conn->query("SELECT * FROM products");
 ?>
 
 <!DOCTYPE html>
@@ -46,31 +54,35 @@ $result = $conn->query("SELECT * FROM products");
             </div>
         </header>
     </form>
-    <form action="" method="post">
-        <main>
-            <div class="container">
-                <div class="items">
-                    <form action="" method="post">
-                        <?php
-                        while($row = $result->fetch_assoc()){
-                            echo
-                            "
-                            <a class='item-a' href='item_card.php?id=" . $row['id'] . "'>
-                                <div class='item'>
-                                    <p><img class='item-img' src=" . $row['image'] . " ></p>
-                                    <h3 class='item-title'>" . $row['name'] . " </h3>
-                                    <h3 class='item-price'>" . $row['price'] . " </h3>
-                                    <button class='item-button' name='buy' value='" . $row['id'] . "'>Купить</button>
-                                </div>
-                            </a>
-                            ";
-                        }
-                        ?>
-                    </form>
+    <main>
+        <div class="main-container">
+            <form action="" method="get">
+                <div class="search">
+                    <input type="text" name="search" class="search-input" placeholder="Поиск...">
+                    <button type="submit" class="search-btn">Найти</button>
                 </div>
-            </div>
-        </main>
-    </form>
+            </form>
+            <form action="" method="post">
+                <div class="items">
+                    <?php
+                    while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+                        echo
+                        "
+                        <a class='item-a' href='item_card.php?id=" . $row['id'] . "'>
+                            <div class='item'>
+                                <p><img class='item-img' src=" . $row['image'] . " ></p>
+                                <h3 class='item-title'>" . $row['name'] . " </h3>
+                                <h3 class='item-price'>" . $row['price'] . " </h3>
+                                <button class='item-button' name='buy' value='" . $row['id'] . "'>Купить</button>
+                            </div>
+                        </a>
+                        ";
+                    }
+                    ?>
+                </div>
+            </form>
+        </div>
+    </main>
     <footer>
         <div class="footer-container">
             <div class="footer-block">

@@ -1,15 +1,23 @@
 <?php
 require 'db.php';
 
+$stmt = $pdo->query("SELECT * FROM cart");
+
 if(isset($_POST['delete'])){
     $id = $_POST['delete'];
     $conn->query("DELETE FROM cart WHERE id = " . $id);
     echo "<script>alert('Товар удален из корзину!')</script>";
 }
 
+if(isset($_GET['search'])){
+    $search = $_GET['search'];
 
+    $sql = "SELECT * FROM cart WHERE name LIKE ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(["%$search%"]);
 
-$result = $conn->query("SELECT * FROM cart");
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -34,11 +42,17 @@ $result = $conn->query("SELECT * FROM cart");
     </form>
     <form action="" method="post">
         <main>
-            <div class="container">
-                <div class="items">
-                    <form action="" method="post">
+            <div class="main-container">
+                <form action="" method="get">
+                    <div class="search">
+                        <input type="text" name="search" class="search-input" placeholder="Поиск...">
+                        <button type="submit" class="search-btn">Найти</button>
+                    </div>
+                </form>
+                <form action="" method="post">
+                    <div class="items">
                         <?php
-                        while($row = $result->fetch_assoc()){
+                        while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
                             echo
                             "
                             <a class='item-a' href='item_card.php?id=" . $row['id'] . "'>
@@ -52,8 +66,8 @@ $result = $conn->query("SELECT * FROM cart");
                             ";
                         }
                         ?>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </main>
     </form>
