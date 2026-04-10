@@ -3,28 +3,28 @@ require 'db.php';
 
 if(isset($_POST['buy'])){
     $id = $_POST['buy'];    
-    $request = $conn->query("SELECT * FROM products WHERE id = $id");
-    $item = $request->fetch_assoc();
+    $request = $pdo->query("SELECT * FROM products WHERE id = $id");
+    $item = $request->fetch(PDO::FETCH_ASSOC);
     $name = $item['name'];
     $description = $item['description'];
     $price = $item['price'];
     $image = $item['image'];
-
     
-    $sql = "INSERT INTO cart (id, name, description, price, image) VALUES ('$id', '$name', '$description', '$price', '$image')";
+    $pdo_request = "INSERT INTO cart (id, name, description, price, image) VALUES ('$id', '$name', '$description', '$price', '$image')";
 
-    if($conn->query($sql) === TRUE) {
+    try{
+        $pdo->query($pdo_request); 
         echo "<script>alert('Товар добавлен в корзину!')</script>";
-    } else {
-        echo "Ошибка. Товар уже добавлне в корзину";
+    } catch(PDOException $e) {
+        echo "<script>alert('Товар уже был добавлен в корзину!')</script>";
+        
     }
 }
 
 $id = $_GET['id'];
-$sql = "SELECT * FROM products WHERE id = $id";
-$result = $conn->query($sql);
+$result = $pdo->query("SELECT * FROM products WHERE id = $id");
 
-$item = $result->fetch_assoc();
+$item = $result->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -84,7 +84,7 @@ $item = $result->fetch_assoc();
             </div>
 
             <div class="footer-block">
-                <p>C 2026 MyShop</p>
+                <p>&copy 2026 MyShop</p>
             </div>
         </div>
     </footer>

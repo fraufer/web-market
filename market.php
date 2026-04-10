@@ -1,7 +1,21 @@
 <?php
 require 'db.php';
 
-$stmt = $pdo->query("SELECT * FROM products");
+$sort = $_GET['sort'] ?? "";
+
+$order = "ORDER BY id ASC";
+
+if($sort == "price_asc"){
+    $order = "ORDER BY price ASC";
+} elseif($sort == "price_desc"){
+    $order = "ORDER BY price DESC";
+} elseif($sort == "name_asc"){
+    $order = "ORDER BY name ASC";
+}
+
+$sql = "SELECT * FROM products $order";
+echo $sql;
+$stmt = $pdo->query($sql);
 
 if(isset($_POST['buy'])){
     $id = $_POST['buy'];    
@@ -30,6 +44,15 @@ if(isset($_GET['search'])){
 
 }
 
+if(isset($_POST['profile'])){
+    if(isset($_SESSION['logged_user'])){
+        header('Location: profile.php');
+    } else{
+        header('Location: auth.php');
+    }
+}
+
+
 
 
 ?>
@@ -40,7 +63,7 @@ if(isset($_GET['search'])){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Интернет-мазагин</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
     <form action="" method="post" class="header-form">
@@ -50,6 +73,12 @@ if(isset($_GET['search'])){
                 <div class="header-links">
                     <a style='text-decoration: underline;' href="market.php" class="header-links-a">Главная страница</a>
                     <a href="cart.php" class="header-links-a">Корзина</a>
+                </div>
+                <div class="header-avatar">
+                    <button class="profile" name="profile">
+                        
+                    </button>
+                    
                 </div>
             </div>
         </header>
@@ -61,7 +90,16 @@ if(isset($_GET['search'])){
                     <input type="text" name="search" class="search-input" placeholder="Поиск...">
                     <button type="submit" class="search-btn">Найти</button>
                 </div>
+                <div class="sort">
+                    <select name="sort">
+                        <option value="price_asc">Сначало дешёвые</option>
+                        <option value="price_desс">Сначало дорогие</option>
+                        <option value="name_asc">По названию (A-Z)</option>
+                        <input type="submit">
+                    </select>
+                </div>
             </form>
+
             <form action="" method="post">
                 <div class="items">
                     <?php
@@ -72,7 +110,7 @@ if(isset($_GET['search'])){
                             <div class='item'>
                                 <p><img class='item-img' src=" . $row['image'] . " ></p>
                                 <h3 class='item-title'>" . $row['name'] . " </h3>
-                                <h3 class='item-price'>" . $row['price'] . " </h3>
+                                <h3 class='item-price'>" . $row['price'] . " тг </h3>
                                 <button class='item-button' name='buy' value='" . $row['id'] . "'>Купить</button>
                             </div>
                         </a>
@@ -87,10 +125,10 @@ if(isset($_GET['search'])){
         <div class="footer-container">
             <div class="footer-block">
                 <h3>Магазин</h3>
-                <a href="">О нас</a>
-                <a href="">Доставка и оплата</a>
-                <a href="">Возврат</a>
-                <a href="">Политика конфиденциальности</a>
+                <a href="#">О нас</a>
+                <a href="#">Доставка и оплата</a>
+                <a href="#">Возврат</a>
+                <a href="#">Политика конфиденциальности</a>
             </div>
 
             <div class="footer-block">
@@ -100,7 +138,7 @@ if(isset($_GET['search'])){
             </div>
 
             <div class="footer-block">
-                <p>C 2026 MyShop</p>
+                <p>&copy 2026 MyShop</p>
             </div>
         </div>
     </footer>

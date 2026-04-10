@@ -5,7 +5,7 @@ $stmt = $pdo->query("SELECT * FROM cart");
 
 if(isset($_POST['delete'])){
     $id = $_POST['delete'];
-    $conn->query("DELETE FROM cart WHERE id = " . $id);
+    $pdo->query("DELETE FROM cart WHERE id = " . $id);
     echo "<script>alert('Товар удален из корзину!')</script>";
 }
 
@@ -18,6 +18,13 @@ if(isset($_GET['search'])){
 
 }
 
+if(isset($_POST['profile'])){
+    if(isset($_SESSION['logged_user'])){
+        header('Location: profile.php');
+    } else{
+        header('Location: auth.php');
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -36,6 +43,12 @@ if(isset($_GET['search'])){
                 <div class="header-links">
                     <a href="market.php" class="header-links-a">Главная страница</a>
                     <a style='text-decoration: underline;' href="cart.php" class="header-links-a">Корзина</a>
+                </div>
+                <div class="header-avatar">
+                    <button class="profile" name="profile">
+                        
+                    </button>
+                    
                 </div>
             </div>
         </header>
@@ -88,7 +101,7 @@ if(isset($_GET['search'])){
             </div>
 
             <div class="footer-block">
-                <p>C 2026 MyShop</p>
+                <p>&copy 2026 MyShop</p>
             </div>
         </div>
     </footer>
